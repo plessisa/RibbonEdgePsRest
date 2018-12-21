@@ -2339,11 +2339,15 @@ Function global:new-uxsignalgroup {
 
 		[Parameter(Mandatory=$true,Position=1,HelpMessage='Enable or Disable this signaling group')]
 		[ValidateSet(0,1)]
-		[int]$customAdminState = 1 ,
+		[int]$CustomAdminState = 1 ,
 
-		[Parameter(Mandatory=$true,Position=1,HelpMessage='Enable or Disable this signaling group')]
+		[Parameter(Mandatory=$true,Position=1,HelpMessage='Specifies the SIP Profile to be used by this Signaling Group')]
 		[ValidateRange(1,65534)]
-		[int]$ProfileID = 6 ,
+		[int]$ProfileID ,
+        
+        [Parameter(Mandatory=$true,Position=1,HelpMessage='Specifies the SIP Server Table to be used by this Signaling Group')]
+		[ValidateRange(1,65534)]
+		[int]$ServerClusterId ,
 
 		[Parameter(Mandatory=$true,Position=2,HelpMessage='Specifies the number of SIP channels available for call')]
 		[ValidateRange(1,960)]
@@ -2359,15 +2363,15 @@ Function global:new-uxsignalgroup {
 
 		[Parameter(Mandatory=$false,Position=5,HelpMessage='Specifies the local listen port 1 on which SG can receive message. This needs to be provided if Protocol_1 is present')]
 		[ValidateRange(0,65535)]
-		[int]$ListenPort1 = 5067 ,
+		[int]$ListenPort_1 = 5067 ,
 
-		[Parameter(Mandatory=$false,Position=6,HelpMessage='Protocol type used by the listener. Currently only 1,2 and 4 are being used. This needs to be provided if ListenPort_1 is present')]
+		[Parameter(Mandatory=$false,Position=6,HelpMessage='Protocol type used by the listener. Currently only 1 (UDP),2 (TCP) and 4 (TLS) are being used. This needs to be provided if ListenPort_1 is present')]
 		[ValidateRange(0,9)]
-		[int]$Protocol1 = 2 ,
+		[int]$Protocol_1 = 2 ,
 
 		[Parameter(Mandatory=$false,Position=7,HelpMessage='If protocol is TLS this is the id of TLS profile in use')]
 		[ValidateRange(0,65534)]
-		[int]$TLSProfileID1 ,
+		[int]$TLSProfileID_1 ,
 
 		[Parameter(Mandatory=$true,Position=8,HelpMessage='Specifies the interface name followed by -1 for primary, followed by -2 for secondary IP')]
 		[ValidateLength(7,60)]
@@ -2411,7 +2415,6 @@ Function global:new-uxsignalgroup {
 
     #Default for non required parameters
     $ServerSelection = 0
-    $ServerClusterId = 6
     $RelOnQckConnectTimer = 1000
     $ToneTableID = 0
     $ActionSetTableID = 0
@@ -2435,8 +2438,7 @@ Function global:new-uxsignalgroup {
 
 
 	#URL for the new ssignal group
-   	#$args = "description=$description&customadminstate=$customadminstate&profileid=$ProfileID&channels=$channels&mediaconfigid=$mediaconfigid&routetableid=$routetableid&listenport1=$listenport1&protocol1=$protocol1&tlsprofileid1=$tlsprofileid1&netinterfacesignaling=$netinterfacesignaling&remotehosts=$remotehosts&remotemasks=$remotemasks&relonqckconnect=$relonqckconnect&rtpmode=$rtpmode&rtpproxymode=$rtpproxymode&rtpdirectmode=$rtpdirectmode&videoproxymode=$videoproxymode&videodirectmode=$videodirectmode&huntmethod=$huntmethod&proxyipversion=$proxyipversion&dscp=$dscp&nattraversaltype=$nattraversaltype&icesupport=$icesupport&inboundnattraversaldetection=$inboundnattraversaldetection&icemode=$icemode&ServerClusterId=$ServerClusterId"
-    $args ="SIPReSync=0&InboundNATPeerRegistrarMaxTTL=120&InboundNATPeerRegistrarMaxEnabled=0&InboundSecureNATMediaPrefix=255.255.255.255&InboundSecureNATMediaLatching=1&InboundNATQualifiedPrefixesTableID=0&InboundNATTraversalDetection=0&ADUpdateFrequency=1&ADAttribute= pager&RegistrantTTL=3600&AgentType=0&InteropMode=0&RegisterKeepAlive=1&SGLevelMOHService=0&PassthruPeerSIPRespCode=1&NATTraversalType=0&NetInterfaceSignaling= Ethernet 2-1&TLSProfileID_1=2&Protocol_1=4&ListenPort_1=5067&DSCP=40&OutboundRegistrarTTL=600&RegistrarTTL=600&RegistrarID=0&ProxyAuthorizationTableID=0&AuthorizationRealm= &Monitor=3&NonceLifetime=0&NotifyCACProfile=0&ChallengeRequest=0&TimerSanitySetup=255000&NoChannelAvailableId=34&ProxyIpVersion=0&AllowRefreshSDP=1&Early183=0&PlayCongestionTone=0&Direction=2&HuntMethod=4&RingBack=0&RouteTableID=2&ActionSetTableID=0&ToneTableID=1&MediaConfigID=2&VideoDirectMode=0&VideoProxyMode=0&RTPDirectMode=1&RTPProxyMode=1&RTPMode=1&RelOnQckConnectTimer=1000&RelOnQckConnect=0&ServerClusterId=2&ServerSelection=0&Channels=10&ProfileID=19&customAdminState=1&Description=test"
+   	$args = "description=$description&customadminstate=$customadminstate&profileid=$ProfileID&ServerClusterId=$ServerClusterId&channels=$channels&mediaconfigid=$mediaconfigid&routetableid=$routetableid&ListenPort_1=$ListenPort_1&Protocol_1=$Protocol_1&TLSProfileID_1=$TLSProfileID_1&netinterfacesignaling=$netinterfacesignaling&remotehosts=$remotehosts&remotemasks=$remotemasks&relonqckconnect=$relonqckconnect&rtpmode=$rtpmode&rtpproxymode=$rtpproxymode&rtpdirectmode=$rtpdirectmode&videoproxymode=$videoproxymode&videodirectmode=$videodirectmode&huntmethod=$huntmethod&proxyipversion=$proxyipversion&dscp=$dscp&nattraversaltype=$nattraversaltype&icesupport=$icesupport&inboundnattraversaldetection=$inboundnattraversaldetection&icemode=$icemode"
 	$url = "https://$uxhostname/rest/sipsg/$sipsgid"
 	
 	Try {
@@ -2464,7 +2466,7 @@ Function global:new-uxsignalgroup {
 	
 	#Sanitise data and return as object for verbose only
 	Try {
-		$m = $uxrawdata.IndexOf("<sipprofile id=")
+		$m = $uxrawdata.IndexOf("<sipsg id=")
 		$length = ($uxrawdata.length - $m - 8)
 		[xml]$uxdataxml =  $uxrawdata.substring($m,$length)
 	}

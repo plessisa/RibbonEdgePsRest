@@ -33,7 +33,7 @@ PS: Thanks again Vikas Jaswal for starting this module.
     - C:\Users\YOURUSERNAME\Documents\WindowsPowerShell\Modules
     - C:\Windows\system32\WindowsPowerShell\v1.0\Modules
 3. Open PowerShell and import the module:
-    - If the module is in one of the above locations (where PowerShell searches), you can just execute import-module RibbonEdgePsRest
-    - If the module is not in the default location you can execute import-module C:\RibbonEdgePsRest\RibbonEdgePsRest.psm1 (replacing the path where you have copied the module to)
-4. To discover what cmdlets are available execute: get-command –module RibbonEdgePsRest. Full PowerShell cmdlet help is available for all cmdlets.
+    - If the module is in one of the above locations (where PowerShell searches), you can just execute import-module RibbonSBCEdge
+    - If the module is not in the default location you can execute import-module C:\RibbonEdgePsRest\RibbonSBCEdge.psm1 (replacing the path where you have copied the module to)
+4. To discover what cmdlets are available execute: get-command –module RibbonSBCEdge. Full PowerShell cmdlet help is available for all cmdlets.
 5. For complete usage, see: http://www.allthingsuc.co.uk/powershell-module-for-sonus-sbc-10002000/
