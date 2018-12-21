@@ -1,19 +1,20 @@
 <#
     .SYNOPSIS 
-      This module allows access to Sonus SBC 1000/2000 via PowerShell using REST API's
+      This module allows access to Ribbon SBC Edge via PowerShell using REST API's
 	 
 	.DESCRIPTION
-	  This module allows access to Sonus SBC 1000/2000 via PowerShell using REST API's
+	  This module allows access to Ribbon SBC Edge via PowerShell using REST API's
 	  For  the module to run correctly following pre-requisites should be met:
 	  1) PowerShell v3.0
-	  2) Sonus SBC 1000/2000 on R3.0 or higher
+	  2) Ribbon SBC Edge on R3.0 or higher
 	  3) Create REST logon credentials (http://www.allthingsuc.co.uk/accessing-sonus-ux-with-rest-apis/)
 	
 	 
 	.NOTES
-		Name: SonusUX
+		Name: RibbonEdge
 		Author: Vikas Jaswal (Modality Systems Ltd)
 		Additional cmdlets added by: Kjetil Lindløkken
+        Additional cmdlets added by: Adrien Plessis
 		
 		Version History:
 		Version 1.0 - 30/11/13 - Module Created - Vikas Jaswal
@@ -23,9 +24,7 @@
 		Version 1.4 - 03/10/18 - Added new-uxsipserverentry cmdlet - Kjetil Lindløkken
 		Version 1.5 - 03/10/18 - Added optional parameter to the get-uxsipprofile cmdlet to add id directly - Kjetil Lindløkken
 		Version 1.6 - 04/10/18 - Added new-uxsipprofile cmdlet - Kjetil Lindløkken
-
-
-
+        Version 1.7 - 20/12/18 - Match Ribbon rebranding, Update link to Ribbon Docs - Adrien Plessis
 		
 		Please use the script at your own risk!
 	
@@ -34,7 +33,7 @@
      
   #>
 
-#Ignore SSL, without this GET commands dont work with UX
+#Ignore SSL, without this GET commands dont work with SBC Edge
 add-type @"
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
@@ -51,13 +50,13 @@ add-type @"
 Function global:connect-uxgateway {
 	<#
 	.SYNOPSIS      
-	 This cmdlet connects to the Sonus SBC and extracts the session token.
+	 This cmdlet connects to the Ribbon SBC and extracts the session token.
 	 
 	.DESCRIPTION
-	This cmdlet connects to the Sonus SBC and extracts the session token required for subsequent cmdlets.All other cmdlets will fail if this command is not successfully executed.
+	This cmdlet connects to the Ribbon SBC and extracts the session token required for subsequent cmdlets.All other cmdlets will fail if this command is not successfully executed.
 	
 	.PARAMETER uxhostname
-	Enter here the hostname or IP address of the Sonus SBC
+	Enter here the hostname or IP address of the Ribbon SBC
 	
 	.PARAMETER uxusername
 	Enter here the REST Username. This is not the same username you use to login via the GUI
@@ -86,7 +85,7 @@ Function global:connect-uxgateway {
     	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12		
 
 
-	#Login to UX
+	#Login to SBC Edge
 	$args1 = "Username=$uxusername&Password=$uxpassword"
 	$url = "https://$uxhostname/rest/login"
 	
@@ -110,11 +109,11 @@ Function global:connect-uxgateway {
 	}
 }
 
-#Function to grab UX system information
+#Function to grab SBC Edge system information
 Function global:get-uxsysteminfo {
 	<#
 	.SYNOPSIS      
-	 This cmdlet collects System information from Sonus SBC.
+	 This cmdlet collects System information from Ribbon SBC.
 	
 	.EXAMPLE
 	get-uxsysteminfo
@@ -161,10 +160,10 @@ Function global:get-uxsysteminfo {
 Function global:get-uxsystemcallstats {
 	<#
 	.SYNOPSIS      
-	 This cmdlet reports Call statistics from Sonus SBC.
+	 This cmdlet reports Call statistics from Ribbon SBC.
 	 
 	.DESCRIPTION
-	 This cmdlet report Call statistics (global level only) from Sonus SBC eg: Calls failed, Calls Succeeded, Call Currently Up, etc.
+	 This cmdlet report Call statistics (global level only) from Ribbon SBC eg: Calls failed, Calls Succeeded, Call Currently Up, etc.
 	
 	.EXAMPLE
 	get-uxsystemcallstats
@@ -210,11 +209,11 @@ Function global:get-uxsystemcallstats {
 Function global:invoke-uxbackup {
 	<#
 	.SYNOPSIS      
-	 This cmdlet performs backup of Sonus SBC
+	 This cmdlet performs backup of Ribbon SBC
 	 
 	.DESCRIPTION
-	This cmdlet performs backup of Sonus SBC.
-	Ensure to check the size of the backup file to verify the backup was successful as Sonus does not acknowledge this.If a backup file is 1KB it means the backup was unsuccessful.
+	This cmdlet performs backup of Ribbon SBC.
+	Ensure to check the size of the backup file to verify the backup was successful as Ribbon does not acknowledge this.If a backup file is 1KB it means the backup was unsuccessful.
 	
 	.PARAMETER backupdestination
 	Enter here the backup folder where the backup file will be copied. Ensure you have got write permissions on this folder.
@@ -255,14 +254,14 @@ Function global:invoke-uxbackup {
 Function global:get-uxresource {
 	<#
 	.SYNOPSIS      
-	 This cmdlet makes a GET request to any valid UX resource. For full list of valid resources refer to http://bit.ly/18iiD40
+	 This cmdlet makes a GET request to any valid UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC
 	 
 	.DESCRIPTION      
-	 This cmdlet makes a GET request to any valid UX resource. For full list of valid resources refer to http://bit.ly/18iiD40.
+	 This cmdlet makes a GET request to any valid UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC.
 	 The cmdlet is one of the most powerful as you can query pretty much any UX resource which supports GET requests!
 	 
 	.PARAMETER resource
-	Enter a valid resource name here. For valid resource names refer to http://bit.ly/18iiD40
+	Enter a valid resource name here. For valid resource names refer to https://support.sonus.net/display/UXAPIDOC
 
 	.EXAMPLE
 	This example queries a "timing" resource 
@@ -279,7 +278,7 @@ Function global:get-uxresource {
 	get-uxresource -resource certificate/1
 	
 	.LINK
-	To find all the resources which can be queried, please refer to http://bit.ly/18iiD40
+	To find all the resources which can be queried, please refer to https://support.sonus.net/display/UXAPIDOC
 	
 	#>
 
@@ -340,14 +339,14 @@ Function global:get-uxresource {
 Function global:new-uxresource {
 	<#
 	.SYNOPSIS      
-	 This cmdlet initiates a PUT request to create a new UX resource. For full list of valid resources refer to http://bit.ly/18iiD40
+	 This cmdlet initiates a PUT request to create a new UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC
 	 
 	.DESCRIPTION      
-	 This cmdlet  initiates a a PUT request to create a new UX resource. For full list of valid resources refer to http://bit.ly/18iiD40.
+	 This cmdlet  initiates a a PUT request to create a new UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC.
 	 Using this cmdlet you can create any resource on UX which supports PUT request!
 	 
 	.PARAMETER resource
-	Enter a valid resource name here. For valid resource names refer to http://bit.ly/18iiD40
+	Enter a valid resource name here. For valid resource names refer to https://support.sonus.net/display/UXAPIDOC
 
 	.EXAMPLE
 	This example creates a new "sipservertable" resource 
@@ -359,7 +358,7 @@ Function global:new-uxresource {
 	new-uxresource -args "Description=LyncMedServers" -resource sipservertable/15
 	
 	.LINK
-	To find all the resources which can be queried, please refer to http://bit.ly/18iiD40
+	To find all the resources which can be queried, please refer to https://support.sonus.net/display/UXAPIDOC
 	
 	#>
 
@@ -431,14 +430,14 @@ Function global:new-uxresource {
 Function global:remove-uxresource {
 	<#
 	.SYNOPSIS      
-	 This cmdlet initates a DELETE request to remove a UX resource. For full list of valid resources refer to http://bit.ly/18iiD40
+	 This cmdlet initates a DELETE request to remove a UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC
 	 
 	.DESCRIPTION      
-	 This cmdlet  initates a DELETE request to remove a UX resource. For full list of valid resources refer to http://bit.ly/18iiD40.
+	 This cmdlet  initates a DELETE request to remove a UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC.
 	 You can delete any resource which supports DELETE request.
 	 
 	.PARAMETER resource
-	Enter a valid resource name here. For valid resource names refer to http://bit.ly/18iiD40
+	Enter a valid resource name here. For valid resource names refer to https://support.sonus.net/display/UXAPIDOC
 
 	.EXAMPLE
 	Extract the transformation table id of the table you want to delete
@@ -455,7 +454,7 @@ Function global:remove-uxresource {
 	remove-uxresource -resource sipservertable/10
 	
 	.LINK
-	To find all the resources which can be queried, please refer to http://bit.ly/18iiD40
+	To find all the resources which can be queried, please refer to https://support.sonus.net/display/UXAPIDOC
 	
 	#>
 
@@ -503,13 +502,13 @@ Function global:remove-uxresource {
 Function global:set-uxresource {
 	<#
 	.SYNOPSIS      
-	 This cmdlet initates a POST request to modify existing UX resource. For full list of valid resources refer to http://bit.ly/18iiD40
+	 This cmdlet initates a POST request to modify existing UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC
 	 
 	.DESCRIPTION      
-	 This cmdlet initates a POST request to modify existing UX resource. For full list of valid resources refer to http://bit.ly/18iiD40.
+	 This cmdlet initates a POST request to modify existing UX resource. For full list of valid resources refer to https://support.sonus.net/display/UXAPIDOC.
 	 
 	.PARAMETER resource
-	Enter a valid resource name here. For valid resource names refer to http://bit.ly/18iiD40
+	Enter a valid resource name here. For valid resource names refer to https://support.sonus.net/display/UXAPIDOC
 
 	.EXAMPLE
 	Assume you want to change the description of one of the SIPServer table.
@@ -528,7 +527,7 @@ Function global:set-uxresource {
 	set-uxresource -args "Description=Test5" -resource "transformationtable/12"
 	
 	.LINK
-	To find all the resources which can be queried, please refer to http://bit.ly/18iiD40
+	To find all the resources which can be queried, please refer to https://support.sonus.net/display/UXAPIDOC
 	
 	#>
 
@@ -834,7 +833,7 @@ Function global:new-uxtransformationtable {
 	This cmdlet creates a transformation table (not transformation table entry).
 	
 	.PARAMETER Description
-	Enter here the Description (Name) of the Transformation table.This is what will be displayed in the Sonus GUI
+	Enter here the Description (Name) of the Transformation table.This is what will be displayed in the Ribbon GUI
 	
 	.EXAMPLE
 	 new-uxtransformationtable -Description "LyncToPBX"
@@ -919,7 +918,7 @@ Function global:new-uxtransformationentry {
 	Enter here the output of the Input value.eg: If you want to change input of "^(2([45]\d{2}|6[0-5]\d))$" to +44123456XXXX, you would enter here +44123456\1
 
 	.PARAMETER Description
-	Enter here the Description (Name) of the Transformation entry. This is what will be displayed in the Sonus GUI
+	Enter here the Description (Name) of the Transformation entry. This is what will be displayed in the Ribbon GUI
 
 	.PARAMETER MatchType
 	Enter here if the Transformation entry you will create will be Mandatory(0) or Optional(1). If this parameter is not specified the transformation table will be created as Optional
@@ -1138,7 +1137,7 @@ Function global:new-uxsipservertable {
 	This cmdlet creates a sipserver table (not sipserver table entry).
 	
 	.PARAMETER Description
-	Enter here the Description (Name) of the sipserver table.This is what will be displayed in the Sonus GUI
+	Enter here the Description (Name) of the sipserver table.This is what will be displayed in the Ribbon GUI
 	
 	.EXAMPLE
 	 new-uxsipservertable -Description "LyncToPBX"
@@ -1226,7 +1225,7 @@ Function global:new-uxsipserverentry {
 	Enter here the output of the Input value.eg: If you want to change input of "^(2([45]\d{2}|6[0-5]\d))$" to +44123456XXXX, you would enter here +44123456\1
 
 	.PARAMETER Protocol
-	Enter here the Description (Name) of the Transformation entry. This is what will be displayed in the Sonus GUI
+	Enter here the Description (Name) of the Transformation entry. This is what will be displayed in the Ribbon GUI
 
 	.PARAMETER TLSProfile
 	Enter here if the Transformation entry you will create will be Mandatory(0) or Optional(1). If this parameter is not specified the transformation table will be created as Optional
@@ -1875,7 +1874,7 @@ Function global:new-uxsipprofile {
 	This cmdlet creates a sip profile (not sipserver table entry).
 	
 	.PARAMETER Description
-	Enter here the Description (Name) of the sipserver table.This is what will be displayed in the Sonus GUI
+	Enter here the Description (Name) of the sipserver table.This is what will be displayed in the Ribbon GUI
 	
 	.EXAMPLE
 	 new-uxsipservertable -Description "LyncToPBX"
@@ -2326,7 +2325,7 @@ Function global:new-uxsignalgroup {
 	This cmdlet creates a sip new signalgroup
 	
 	.PARAMETER Description
-	Enter here the Description (Name) of the sipserver table.This is what will be displayed in the Sonus GUI
+	Enter here the Description (Name) of the sipserver table.This is what will be displayed in the Ribbon GUI
 	
 	.EXAMPLE
 	 new-uxsignalgroup -Description "LyncToPBX"
@@ -2476,19 +2475,14 @@ Function global:new-uxsignalgroup {
 	write-verbose $uxdataxml.sipsg
 }
 
-
-
-
-
-###
 #Function to restartUX
 Function global:restart-uxgateway {
 	<#
 	.SYNOPSIS      
-	 This cmdlet restarts Sonus gateway
+	 This cmdlet restarts Ribbon gateway
 	 
 	.SYNOPSIS      
-	This cmdlet restarts Sonus gateway
+	This cmdlet restarts Ribbon gateway
 	
 	.EXAMPLE
 	 restart-uxgateway

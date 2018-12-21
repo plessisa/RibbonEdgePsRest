@@ -28,7 +28,7 @@ PS: Thanks again Vikas Jaswal for starting this module.
 
 ## Getting Started
 
-1. Download the RibbonEdgePsRest PowerShell module from here
+1. Download the RibbonEdgePsRest PowerShell module from the button "Clone or downlaod"
 2. Copy the module to your machine. Ideally you want to copy the module to one of the following locations as these are default locations where PowerShell looks for modules when import-module is executed.
     - C:\Users\YOURUSERNAME\Documents\WindowsPowerShell\Modules
     - C:\Windows\system32\WindowsPowerShell\v1.0\Modules
